@@ -1,0 +1,6 @@
+{
+  "name": "3D Neon Tic-Tac-Toe",
+  "description": "A striking 3D-style offline two-player Tic-Tac-Toe game with neon glow effects, dynamic perspective tilt, and Web Audio API synthesizer sounds.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

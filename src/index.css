@@ -1,0 +1,89 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  
+  --color-board-bg: #14142b;
+  --color-game-bg: #0f0f1a;
+  --color-neon-cyan: #00ffff;
+  --color-neon-pink: #ff2a85;
+}
+
+@layer utilities {
+  .perspective-1000 {
+    perspective: 1000px;
+  }
+  .preserve-3d {
+    transform-style: preserve-3d;
+  }
+}
+
+/* Custom glow effects and keyframes */
+@keyframes neon-pulse-cyan {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(0, 255, 255, 0.5), inset 0 0 8px rgba(0, 255, 255, 0.3);
+    text-shadow: 0 0 8px rgba(0, 255, 255, 0.8);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.9), inset 0 0 15px rgba(0, 255, 255, 0.6);
+    text-shadow: 0 0 15px rgba(0, 255, 255, 1), 0 0 25px rgba(0, 255, 255, 0.6);
+  }
+}
+
+@keyframes neon-pulse-pink {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(255, 42, 133, 0.5), inset 0 0 8px rgba(255, 42, 133, 0.3);
+    text-shadow: 0 0 8px rgba(255, 42, 133, 0.8);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(255, 42, 133, 0.9), inset 0 0 15px rgba(255, 42, 133, 0.6);
+    text-shadow: 0 0 15px rgba(255, 42, 133, 1), 0 0 25px rgba(255, 42, 133, 0.6);
+  }
+}
+
+@keyframes grid-glow {
+  0%, 100% {
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+  50% {
+    box-shadow: 0 8px 32px 0 rgba(74, 57, 184, 0.2), 0 0 20px rgba(74, 57, 184, 0.1);
+  }
+}
+
+.animate-pulse-cyan {
+  animation: neon-pulse-cyan 1.5s infinite;
+}
+
+.animate-pulse-pink {
+  animation: neon-pulse-pink 1.5s infinite;
+}
+
+.board-shadow {
+  animation: grid-glow 4s infinite ease-in-out;
+}
+
+/* Base custom styles to reset scrollbars and focus highlights */
+body {
+  background-color: #0f0f1a;
+  color: #eeeeff;
+  user-select: none;
+  overflow-x: hidden;
+}
+
+/* 3D Cell Depth Layering */
+.cell-layer-back {
+  transform: translateZ(-8px);
+}
+
+.cell-layer-front {
+  transform: translateZ(12px);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.cell-pressed .cell-layer-front {
+  transform: translateZ(2px);
+}
+
