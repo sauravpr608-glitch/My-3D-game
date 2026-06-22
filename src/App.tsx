@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BoardState, Player, Scores, GameStatus, WinInfo } from './types';
 import { GameBoard } from './components/GameBoard';
 import { ScoreBoard } from './components/ScoreBoard';
-import { AdOverlay } from './components/AdOverlay';
+import { AdsterraAd } from './components/AdsterraAd';
 import { 
   playClickX, 
   playClickO, 
@@ -25,10 +25,6 @@ export default function App() {
   const [currentPlayer, setCurrentPlayer] = useState<Player>('X');
   const [gameStatus, setGameStatus] = useState<GameStatus>('playing');
   const [winningPattern, setWinningPattern] = useState<number[] | null>(null);
-  
-  // Track visual states for ad integration
-  const [showAd, setShowAd] = useState(false);
-  const [adTriggered, setAdTriggered] = useState(false);
 
   // Scores tracked inside localStorage or default
   const [scores, setScores] = useState<Scores>(() => {
@@ -51,18 +47,6 @@ export default function App() {
       console.warn("Could not write scores to localStorage", e);
     }
   }, [scores]);
-
-  // Hook into ad callback event dispatched by window helper
-  useEffect(() => {
-    const handleSimulatedAd = () => {
-      setShowAd(true);
-    };
-
-    window.addEventListener('show-simulated-ad', handleSimulatedAd);
-    return () => {
-      window.removeEventListener('show-simulated-ad', handleSimulatedAd);
-    };
-  }, []);
 
   // Check for win states
   const checkWinner = (currentBoard: BoardState): WinInfo | null => {
@@ -109,9 +93,6 @@ export default function App() {
 
       // Play joyful cyber notes
       playWinMelody(winInfo.winner);
-      
-      // Automatic Interstitial trigger after 1.2 seconds precisely
-      triggerAdWithDelay();
     } else if (nextBoard.every(cell => cell !== null)) {
       // Draw match!
       setGameStatus('draw');
@@ -122,26 +103,10 @@ export default function App() {
 
       // Play drawing chime
       playDrawSound();
-      
-      // Automatic Interstitial trigger after 1.2 seconds precisely
-      triggerAdWithDelay();
     } else {
       // Toggle offline players
       setCurrentPlayer(currentPlayer === 'X' ? 'O' : 'X');
     }
-  };
-
-  // Triggers AppLovin Interstitial exactly 1.2 seconds after match conclusion
-  const triggerAdWithDelay = () => {
-    if (adTriggered) return;
-    setAdTriggered(true);
-
-    setTimeout(() => {
-      console.log("[App] Match finished. Initiating AppLovin ad handler (1.2 seconds elapsed)...");
-      if (typeof (window as any).triggerInterstitialAd === 'function') {
-        (window as any).triggerInterstitialAd();
-      }
-    }, 1200);
   };
 
   const resetGame = () => {
@@ -149,9 +114,6 @@ export default function App() {
     setBoard(INITIAL_BOARD);
     setGameStatus('playing');
     setWinningPattern(null);
-    setAdTriggered(false);
-    // Keep winner/loser starting order dynamic: winner gets first move, or alternates!
-    // To make games flow well, let's alternate whose turn starts the reset, or keep current player
   };
 
   const clearScores = () => {
@@ -193,79 +155,83 @@ export default function App() {
         </div>
       </header>
 
-      {/* MAIN CONTAINER */}
-      <main className="w-full max-w-lg flex-1 flex flex-col items-center justify-center my-auto px-2">
+      {/* MAIN CONTAINER WITH SIDEBAR FOR DESKTOP ADSTERRA BANNER */}
+      <main className="w-full max-w-5xl flex-1 flex flex-col xl:flex-row items-center xl:items-start justify-center gap-8 xl:gap-14 my-auto px-2 py-4">
         
-        {/* SCOREBOARD COMPONENT */}
-        <ScoreBoard 
-          scores={scores} 
-          currentPlayer={currentPlayer} 
-          gameStatus={gameStatus} 
-          onClearScores={clearScores} 
-        />
+        {/* PLAYABLE AREA */}
+        <div className="w-full max-w-md flex flex-col items-center">
+          
+          {/* SCOREBOARD COMPONENT */}
+          <ScoreBoard 
+            scores={scores} 
+            currentPlayer={currentPlayer} 
+            gameStatus={gameStatus} 
+            onClearScores={clearScores} 
+          />
 
-        {/* INTERACTIVE 3D GAME BOARD */}
-        <GameBoard 
-          board={board} 
-          onCellClick={handleCellClick} 
-          currentPlayer={currentPlayer}
-          winningPattern={winningPattern}
-          gameStatus={gameStatus}
-        />
+          {/* INTERACTIVE 3D GAME BOARD */}
+          <GameBoard 
+            board={board} 
+            onCellClick={handleCellClick} 
+            currentPlayer={currentPlayer}
+            winningPattern={winningPattern}
+            gameStatus={gameStatus}
+          />
 
-        {/* WIN/LOSE DISPLAY & GAME SUMMARY */}
-        <div className="min-h-[44px] flex flex-col items-center justify-center text-center mt-3 mb-6 select-none">
-          {gameStatus === 'win_X' && (
-            <div className="animate-bounce flex items-center gap-2 bg-[#00ffff]/10 border border-[#00ffff]/30 rounded-full px-6 py-2 shadow-[0_0_15px_rgba(0,255,255,0.15)] text-sm font-bold text-[#00ffff] font-display">
-              <Sparkles size={16} />
-              Cyan Player X Dominates the Match!
-            </div>
-          )}
-          {gameStatus === 'win_O' && (
-            <div className="animate-bounce flex items-center gap-2 bg-[#ff2a85]/10 border border-[#ff2a85]/30 rounded-full px-6 py-2 shadow-[0_0_15px_rgba(255,42,133,0.15)] text-sm font-bold text-[#ff2a85] font-display">
-              <Sparkles size={16} />
-              Hot Pink Player O Dominates the Match!
-            </div>
-          )}
-          {gameStatus === 'draw' && (
-            <div className="flex items-center gap-2 bg-neutral-900/80 border border-neutral-700/50 rounded-full px-6 py-2 text-sm font-bold text-neutral-200">
-              <AlertCircle size={16} className="text-indigo-400" />
-              Strategic Tie! Both Players Matched Perfectly.
-            </div>
-          )}
-          {gameStatus === 'playing' && (
-            <p className="text-xs text-neutral-400 tracking-wide font-medium italic">
-              Move cursor or swipe screen to rotate grid in 3D perspective
-            </p>
-          )}
+          {/* WIN/LOSE DISPLAY & GAME SUMMARY */}
+          <div className="min-h-[44px] flex flex-col items-center justify-center text-center mt-3 mb-6 select-none">
+            {gameStatus === 'win_X' && (
+              <div className="animate-bounce flex items-center gap-2 bg-[#00ffff]/10 border border-[#00ffff]/30 rounded-full px-6 py-2 shadow-[0_0_15px_rgba(0,255,255,0.15)] text-sm font-bold text-[#00ffff] font-display">
+                <Sparkles size={16} />
+                Cyan Player X Dominates the Match!
+              </div>
+            )}
+            {gameStatus === 'win_O' && (
+              <div className="animate-bounce flex items-center gap-2 bg-[#ff2a85]/10 border border-[#ff2a85]/30 rounded-full px-6 py-2 shadow-[0_0_15px_rgba(255,42,133,0.15)] text-sm font-bold text-[#ff2a85] font-display">
+                <Sparkles size={16} />
+                Hot Pink Player O Dominates the Match!
+              </div>
+            )}
+            {gameStatus === 'draw' && (
+              <div className="flex items-center gap-2 bg-neutral-900/80 border border-neutral-700/50 rounded-full px-6 py-2 text-sm font-bold text-neutral-200">
+                <AlertCircle size={16} className="text-indigo-400" />
+                Strategic Tie! Both Players Matched Perfectly.
+              </div>
+            )}
+            {gameStatus === 'playing' && (
+              <p className="text-xs text-neutral-400 tracking-wide font-medium italic">
+                Move cursor or swipe screen to rotate grid in 3D perspective
+              </p>
+            )}
+          </div>
+
+          {/* PERMANENT PLAY AGAIN BUTTON */}
+          <div className="w-full max-w-sm flex justify-center pb-2">
+            <button
+              id="play-again-btn"
+              onClick={resetGame}
+              className="w-full flex items-center justify-center gap-2 py-3.5 px-8 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-sm shadow-[0_4px_20px_rgba(109,40,217,0.35)] hover:shadow-[0_8px_25px_rgba(109,40,217,0.45)] transform hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer font-display tracking-wide"
+            >
+              <RotateCcw size={16} className="animate-[spin_4s_linear_infinite]" />
+              PLAY AGAIN
+            </button>
+          </div>
         </div>
 
-        {/* PERMANENT PLAY AGAIN BUTTON */}
-        <div className="w-full max-w-sm flex justify-center pb-2">
-          <button
-            id="play-again-btn"
-            onClick={resetGame}
-            className="w-full flex items-center justify-center gap-2 py-3.5 px-8 rounded-2xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold text-sm shadow-[0_4px_20px_rgba(109,40,217,0.35)] hover:shadow-[0_8px_25px_rgba(109,40,217,0.45)] transform hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer font-display tracking-wide"
-          >
-            <RotateCcw size={16} className="animate-[spin_4s_linear_infinite]" />
-            PLAY AGAIN
-          </button>
+        {/* ADSTERRA BANNER COLUMN */}
+        <div className="flex flex-col items-center justify-center xl:pt-14 shrink-0">
+          <AdsterraAd />
         </div>
 
       </main>
 
-      {/* AD NOTIFICATION PANEL (Alerting when we're preparing/triggering advertising) */}
+      {/* FOOTER BAR */}
       <footer className="w-full max-w-md mx-auto pt-6 text-center select-none text-[10px] text-neutral-500 flex flex-col items-center gap-1 opacity-80">
         <p>No Bots or Single-Player modes. Standard Pass & Play only.</p>
         <p className="font-mono text-[9px] mt-0.5 max-w-xs text-neutral-600">
-          *AppLovin Interstitial Ad scheduled automatically 1.2s post-match.
+          Dynamic 3D neon layout with real-time Web Audio synthesizer sounds.
         </p>
       </footer>
-
-      {/* SIMULATED AD INTERSTITIAL OVERLAY */}
-      {showAd && (
-        <AdOverlay onClose={() => setShowAd(false)} />
-      )}
     </div>
   );
 }

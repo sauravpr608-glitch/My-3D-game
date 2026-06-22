@@ -4,63 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>3D Neon Tic-Tac-Toe</title>
-    <!-- AppLovin Mobile Web SDK library -->
-    <script src="https://www.applov-in.com/web/sdk/index.js" defer></script>
-    <script>
-      window.applovinLoaded = false;
-      window.applovinSDK = null;
-
-      // Handle AppLovin SDK load safely
-      window.addEventListener('load', function() {
-        try {
-          if (window.AppLovinSDK) {
-            window.applovinSDK = window.AppLovinSDK;
-            if (typeof window.applovinSDK.initialize === "function") {
-              window.applovinSDK.initialize({
-                sdkKey: "YOUR_APPLOVIN_SDK_KEY"
-              });
-            }
-            window.applovinLoaded = true;
-            console.log("[AppLovin SDK] SDK Loaded and Initialized successfully!");
-          } else {
-            console.warn("[AppLovin SDK] AppLovin SDK was not loaded by network. Utilizing simulation fallback.");
-          }
-        } catch (e) {
-          console.error("[AppLovin SDK] Error initializing AppLovin SDK", e);
-        }
-      });
-
-      // Global helper to trigger interstitial ad
-      window.triggerInterstitialAd = function() {
-        console.log("[AppLovin SDK] Interstitial ad trigger requested!");
-        if (window.applovinLoaded && window.applovinSDK) {
-          try {
-            console.log("[AppLovin SDK] Executing showInterstitial through SDK...");
-            if (typeof window.applovinSDK.showInterstitial === "function") {
-              window.applovinSDK.showInterstitial();
-            } else if (typeof window.applovinSDK.showAd === "function") {
-              window.applovinSDK.showAd("interstitial");
-            } else {
-              showSimulatedAd();
-            }
-          } catch (err) {
-            console.error("[AppLovin SDK] Error showing ad through SDK", err);
-            showSimulatedAd();
-          }
-        } else {
-          console.log("[AppLovin SDK] Showing simulated ad fallback...");
-          showSimulatedAd();
-        }
-      };
-
-      function showSimulatedAd() {
-        // Dispatch custom event to React so it displays a high-fidelity visual ad interstitial overlay that conforms with 3D neon styling.
-        const adEvent = new CustomEvent("show-simulated-ad", {
-          detail: { title: "Advertiser Showcase", sponsor: "AppLovin Integration" }
-        });
-        window.dispatchEvent(adEvent);
-      }
-    </script>
   </head>
   <body>
     <div id="root"></div>
