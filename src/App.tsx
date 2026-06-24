@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BoardState, Player, Scores, GameStatus, WinInfo } from './types';
 import { GameBoard } from './components/GameBoard';
 import { ScoreBoard } from './components/ScoreBoard';
-import { AdsterraAd } from './components/AdsterraAd';
+import { RewardClaim } from './components/RewardClaim';
 import { 
   playClickX, 
   playClickO, 
@@ -218,9 +218,9 @@ export default function App() {
           </div>
         </div>
 
-        {/* ADSTERRA BANNER COLUMN */}
-        <div className="flex flex-col items-center justify-center xl:pt-14 shrink-0">
-          <AdsterraAd />
+        {/* DAILY REWARD SYSTEM */}
+        <div className="flex flex-col items-center justify-center xl:pt-8 shrink-0">
+          <RewardClaim />
         </div>
 
       </main>
